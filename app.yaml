@@ -4,10 +4,16 @@ runtime: php
 api_version: 1
 
 handlers:
+
+# Work like a directory structure for php and html files
 - url: /(.*\.(php|html))$
   script: \1
 
 - url: /
+  script: index.php
+
+# We don't want people to access these
+- url: /(docs|twitteroauth)/.*
   script: index.php
 
 - url: /(.*\.(gif|png|jpg))$
