@@ -4,14 +4,11 @@ runtime: php
 api_version: 1
 
 handlers:
+- url: /(.*\.(php|html))$
+  script: \1
+
 - url: /
   script: index.php
-
-- url: /index\.html
-  script: index.php
-
-- url: /stylesheets
-  static_dir: stylesheets
 
 - url: /(.*\.(gif|png|jpg))$
   static_files: static/\1
