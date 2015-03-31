@@ -5,16 +5,17 @@ api_version: 1
 
 handlers:
 
-# Work like a directory structure for php and html files
-- url: /(.*\.(php|html))$
-  script: \1
-
-- url: /
+# Stuff we don't want people to access
+- url: /globals\.php
   script: index.php
 
 # We don't want people to access these
 - url: /(docs|twitteroauth)/.*
   script: index.php
+
+# Work like a directory structure for php and html files
+- url: /(.*\.(php|html))$
+  script: \1
 
 - url: /(.*\.(gif|png|jpg))$
   static_files: static/\1
