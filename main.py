@@ -11,7 +11,7 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 @app.route('/')
 def hello():
     """Return a friendly HTTP greeting."""
-    auth = tweepy.OAuthHandler('Z490uJ5MuYS0S3mhRg6W1qQEY', 'DV5tmVyMcp4ldLQsVkGlQRIQy9cqsIGqX4SFdhrgKNyrvAnuoR')
+    auth = tweepy.OAuthHandler('lVf4ernDov9p75lJ5COIAcUiB', 'XxLd0mZQj6GQtDoaJvbBZlDmEkMqQe1xISCWB1UK9vglMQpHEA')
 
     try:
         redirect_url = auth.get_authorization_url()
