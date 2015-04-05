@@ -1,4 +1,4 @@
-from flask import Flask, session, redirect, request
+from flask import Flask, session, redirect, request, send_from_directory, render_template
 import tweepy
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -10,7 +10,12 @@ consumer_key = 'lVf4ernDov9p75lJ5COIAcUiB'
 consumer_secret = 'XxLd0mZQj6GQtDoaJvbBZlDmEkMqQe1xISCWB1UK9vglMQpHEA'
 
 @app.route('/')
-def hello():
+def main():
+    return render_template('home.html')
+
+
+@app.route('/twitter')
+def twit_start():
     """Return a friendly HTTP greeting."""
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 
@@ -24,7 +29,6 @@ def hello():
     session['request_token'] = auth.request_token   
 
     return redirect(redirect_url)
-
 
 @app.route('/auth')
 def twit_auth():  
@@ -50,6 +54,15 @@ def twit_auth():
     api.update_status(status='tweepy + oauth!')
 
     return "DID ITT"
+
+
+@app.route('/static/<path:path>')
+def send_js(path):
+    return send_from_directory('static', path)
+
+@app.route('/templates/<path:path>')
+def send_html(path):
+    return send_from_directory('templates', path)
 
 
 @app.errorhandler(404)
