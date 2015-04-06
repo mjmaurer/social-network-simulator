@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+
+<div id="sigma-container">
+<div id="sigma-example">
+</div>
+</div>
+<script src="{{ url_for('static', filename='lib/sigma.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.parsers.gexf.min.js') }}"></script>
+<script>
+    sigma.parsers.gexf(
+    "{{ url_for('static', filename='data/facebookGraph.gexf') }}",
+        { // Here is the ID of the DOM element that
+          // will contain the graph:
+          container: 'sigma-example'
+        },
+        function(s) {
+          // This function will be executed when the
+          // graph is displayed, with "s" the related
+          // sigma instance.
+        }
+    );
+</script>  
+
+</body>
+
+</html>

@@ -14,9 +14,14 @@ def main():
     return render_template('home.html')
 
 
+@app.route('/facebook')
+def facebook_start(): 
+    return render_template('facebook.html')
+
+
 @app.route('/twitter')
 def twit_start():
-    """Return a friendly HTTP greeting."""
+
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 
     api = tweepy.API(auth)
