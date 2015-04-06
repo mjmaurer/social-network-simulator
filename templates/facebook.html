@@ -3,22 +3,32 @@
 
 <head>
     <meta charset="utf-8">
+    <style>
+        #sigma-parent {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+    </style>
+    <script src="{{ url_for('static', filename='lib/sigma.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.parsers.gexf.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/jquery-1.11.2.min.js') }}"></script>
 </head>
 
 <body>
 
-<div id="sigma-container">
-<div id="sigma-example">
+<div id="sigma-parent">
 </div>
-</div>
-<script src="{{ url_for('static', filename='lib/sigma.min.js') }}"></script>
-<script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.parsers.gexf.min.js') }}"></script>
+
 <script>
+
+
+$(document).ready(function() {
     sigma.parsers.gexf(
     "{{ url_for('static', filename='data/facebookGraph.gexf') }}",
         { // Here is the ID of the DOM element that
           // will contain the graph:
-          container: 'sigma-example'
+          container: 'sigma-parent'
         },
         function(s) {
           // This function will be executed when the
@@ -26,6 +36,9 @@
           // sigma instance.
         }
     );
+});
+
+    
 </script>  
 
 </body>
