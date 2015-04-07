@@ -113,6 +113,7 @@
 
 			postsNewContent = Math.floor(Math.random() * 2 + 1);
 
+			//TODO: Add key for colors / have colors that make more sense.
 			if (postsNewContent == 1) {
 				catchesEye = Math.floor(Math.random() * 2 + 1);
 
@@ -121,16 +122,16 @@
 					willRepost = Math.floor(Math.random() * 2 + 1);
 
 					if (willRepost == 1) {
-            					n.color = n.originalColor;
+            					n.color = '#000000'; 
 	    					colorSim(n);
 					} else {
-            					n.color = '#eee';
+            					n.color = '#00FF00';
 					}
 				} else {
-            				n.color = '#eee';
+            				n.color = '#00FFFF';
 				}
 			} else {
-            			n.color = '#eee';
+            			n.color = '#FFFF70';
 			}
 		}
           	else
