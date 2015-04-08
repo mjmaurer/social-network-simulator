@@ -20,15 +20,38 @@
     <div id="menu-id">
     <form id="FBSim" action="form_action.asp">
         Diversity
-        <input type="text" name="diversityP">
+        <input type="text" name="diversityP" value="0">
 
         Unique Content
-        <input type="text" name="uniquenessP">
+        <input type="text" name="uniquenessP" value="0">
 
         Re-Share Probability
-        <input type="text" name="reshareP">
+        <input type="text" name="reshareP" value="1.0">
         <input type="BUTTON" value="Run Simulation" onclick="runSimulation(this.form)">
     </form>
+    <!--<table>
+        <tr>
+            <td>
+            </td>
+            <td>
+                Didn't see it.
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                Saw the meme.
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                Re-shared the meme.
+            </td>
+        </tr>
+    </table>-->
         </div>
     <div id="sigma-parent"></div>
 </div>
@@ -178,17 +201,21 @@
     }
   );
 
+  function isValidInput(n) {
+      return parseFloat(n) >= 0 && parseFloat(n) <= 1 && n != "";
+  }
+
   function runSimulation(frm) {
 		diversity = frm.diversityP.value; 
 		uniqueness = frm.uniquenessP.value;
 		reshare = frm.reshareP.value;
-		if (diversity == "" || uniqueness == "" || reshare == "") {
-			alert("Oops- make sure all fields are filled out!");
+		if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
+		    simulating = true;
 		} else {
-			simulating = true;
-			alert("all good");
+		    alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
 		}
-	} 
+  }
+
 </script>
 
 </body>
