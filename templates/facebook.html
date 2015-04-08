@@ -31,11 +31,17 @@
     </form>
     <table>
         <tr>
+            <td></td>
+            <td>Start Node:</td>
+            <td id="startingNode"></td>
+        </tr>
+        <tr>
             <td bgColor="#eee" width="50px">
             </td>
             <td>
                 Didn't see it.
             </td>
+            <td id="unseenCount"></td>
         </tr>
         <tr>
             <td width="50px" bgColor="#00FF00">
@@ -43,6 +49,7 @@
             <td>
                 Interested.
             </td>
+            <td id="interestedCount"></td>
         </tr>
         <tr>
             <td width="50px" bgColor="#00FFFF">
@@ -50,6 +57,7 @@
             <td>
                 Uninterested.
             </td>
+            <td id="uninterestedCount"></td>
         </tr>
         <tr>
             <td width="50px" bgColor="#000000">
@@ -57,6 +65,7 @@
             <td>
                 Re-shared.
             </td>
+            <td id="resharedCount"></td>
         </tr>
     </table>
         </div>
@@ -71,6 +80,11 @@
 	var diversity = "";
 	var uniqueness = "";
 	var reshare = "";
+	var startNode = "";
+	var reshareCt = 0;
+	var interestCt = 0;
+	var uninterestCt = 0;
+	var unseenCt = 0;
 	var simulating;
 
     // Add a method to the graph model that returns an
@@ -85,14 +99,6 @@
 
     return neighbors;
     });
-
-  sigma.classes.graph.addMethod('simulate', function(nodeId) {
-	  if (Boolean(simulating)) {
-	  	friends = {};
-	  	friends = s.graph.neighbors(startNode);
-	  }
-
-	  });
 
   sigma.parsers.gexf(
     "{{ url_for('static', filename='data/facebookGraph.gexf') }}",
@@ -154,18 +160,23 @@
 	                        n.visited = true;
 	                        willRepost = Math.random();
 	                        if (willRepost < reshare) {
+	                            reshareCt = reshareCt + 1;
 	                            n.color = repostColor;
 	                            colorSim(n);
 	                        } else {
+	                           interestCt = interestCt + 1;
 	                            n.color = interestedNoPostColor;
 	                        }
 	                    } else {
+	                        uninterestCt = uninterestCt + 1;
 	                        n.color = seenUninterestedColor;
 	                    }
 	                } else {
+	                    unseenCt = unseenCt + 1;
 	                    n.color = unseenColor;
 	                }
                 } else {
+                    unseenCt = unseenCt + 1;
                     n.color = unseenColor;
                 }
             }
@@ -187,10 +198,20 @@
 
 	      if (!Boolean(simulating)) {
 	      	color(e);
-		} else {
+	      } else {
+	          startNode = e.data.node.label;
+	          reshareCt = '0';
+	          uninterestCt = '0';
+	          interestCt = '0';
+	          unseenCt = '0';
+	          document.getElementById("startingNode").innerText = startNode;
 	          e.data.node.visited = true;
 	          e.data.node.color = e.data.node.originalColor;
 	          colorSim(e.data.node);
+	          document.getElementById("reshareCount").innerText = reshareCt;
+	          document.getElementById("uninterestedCount").innerText = uninterestCt;
+	          document.getElementById("interestedCount").innerText = interestCt;
+	          document.getElementById("unseenCount").innerText = unseenCt;
 	      }
       });
 
