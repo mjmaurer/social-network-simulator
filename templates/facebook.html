@@ -149,7 +149,7 @@
                     //Does this user scan the screen or post new content?
                     postsNewContent = Math.random();
 
-	                //TODO: Add key for colors / have colors that make more sense.
+                    n.visited = true;
 	                if (postsNewContent >= uniqueness) {
 	                    catchesEye = Math.random();
 
@@ -157,14 +157,13 @@
 	                        //If a post catches a person's eye, 
 	                        //assume that they won't repost even if they
 	                        //see it later at another point in time
-	                        n.visited = true;
 	                        willRepost = Math.random();
 	                        if (willRepost < reshare) {
 	                            reshareCt = reshareCt + 1;
 	                            n.color = repostColor;
 	                            colorSim(n);
 	                        } else {
-	                           interestCt = interestCt + 1;
+	                            interestCt = interestCt + 1;
 	                            n.color = interestedNoPostColor;
 	                        }
 	                    } else {
@@ -200,15 +199,15 @@
 	      	color(e);
 	      } else {
 	          startNode = e.data.node.label;
-	          reshareCt = '0';
-	          uninterestCt = '0';
-	          interestCt = '0';
-	          unseenCt = '0';
+	          reshareCt = 0;
+	          uninterestCt = 0;
+	          interestCt = 0;
+	          unseenCt = 0;
 	          document.getElementById("startingNode").innerText = startNode;
 	          e.data.node.visited = true;
 	          e.data.node.color = e.data.node.originalColor;
 	          colorSim(e.data.node);
-	          document.getElementById("reshareCount").innerText = reshareCt;
+	          document.getElementById("resharedCount").innerText = reshareCt;
 	          document.getElementById("uninterestedCount").innerText = uninterestCt;
 	          document.getElementById("interestedCount").innerText = interestCt;
 	          document.getElementById("unseenCount").innerText = unseenCt;
@@ -247,7 +246,8 @@
 		reshare = frm.reshareP.value;
 		if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
 		    simulating = true;
-		    sigma.reset();
+		    var e = '';
+		    sigma.reset(e);
 		} else {
 		    alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
 		}
