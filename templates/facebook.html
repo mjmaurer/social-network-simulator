@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -16,18 +16,21 @@
 </head>
 <body>
 
-<div id="sigma-parent">
-<form id="FBSim" action="form_action.asp">
-	Diversity 
-	<input type="text" name ="diversityP">
+<div id="main-div">
+    <div id="menu-id">
+    <form id="FBSim" action="form_action.asp">
+        Diversity
+        <input type="text" name="diversityP">
 
-	Unique Content
-	<input type="text" name="uniquenessP">
+        Unique Content
+        <input type="text" name="uniquenessP">
 
-	Re-Share Probability
-	<input type="text" name="reshareP"> 
-	<input type="BUTTON" value = "Run Simulation" onClick="runSimulation(this.form)">
-</form>
+        Re-Share Probability
+        <input type="text" name="reshareP">
+        <input type="BUTTON" value="Run Simulation" onclick="runSimulation(this.form)">
+    </form>
+        </div>
+    <div id="sigma-parent"></div>
 </div>
 
 <script>
@@ -35,13 +38,9 @@
 	var uniqueness = "";
 	var reshare = "";
 	var simulating;
-	var startNode;
 
-	
-   
-//$(document).ready(function() {
- // Add a method to the graph model that returns an
-  // object with every neighbors of a node inside:
+    // Add a method to the graph model that returns an
+    // object with every neighbors of a node inside:
   sigma.classes.graph.addMethod('neighbors', function(nodeId) {
     var k,
         neighbors = {},
@@ -71,7 +70,7 @@
       // nodes and edges, like this:
       s.graph.nodes().forEach(function(n) {
         n.originalColor = n.color;
-	n.visited = false;
+        n.visited = false;
       });
       s.graph.edges().forEach(function(e) {
         e.originalColor = e.color;
@@ -96,7 +95,7 @@
             e.color = '#eee';
       });
 
-	s.refresh();
+        s.refresh();
       }
 
       function colorSim(node) {
@@ -104,43 +103,43 @@
             toKeep = s.graph.neighbors(nodeId);
         toKeep[nodeId] = node;
 
-        s.graph.nodes().forEach(function(n) {
-	  if (!n.visited) {
-	  	if (toKeep[n.id]) {
+        s.graph.nodes().forEach(function (n) {
+            if (!Boolean(n.visited)) {
+                if (toKeep[n.id]) {
+                    //Does this user scan the screen or post new content?
+                    postsNewContent = Math.random();
 
-			//Does this user scan the screen or post new content?
-			//TODO: Use distribution to calculate probability
+	                //TODO: Add key for colors / have colors that make more sense.
+	                if (postsNewContent >= uniqueness) {
+	                    catchesEye = Math.random();
 
-			postsNewContent = Math.floor(Math.random() * 2 + 1);
-
-			//TODO: Add key for colors / have colors that make more sense.
-			if (postsNewContent == 1) {
-				catchesEye = Math.floor(Math.random() * 2 + 1);
-
-				if (catchesEye == 1) {
-	  				n.visited = true;
-					willRepost = Math.floor(Math.random() * 2 + 1);
-
-					if (willRepost == 1) {
-            					n.color = '#000000'; 
-	    					colorSim(n);
-					} else {
-            					n.color = '#00FF00';
-					}
-				} else {
-            				n.color = '#00FFFF';
-				}
-			} else {
-            			n.color = '#FFFF70';
-			}
-		}
-          	else
-            		n.color = '#eee';
-	 }
+	                    if (catchesEye >= diversity) {
+	                        //If a post catches a person's eye, 
+	                        //assume that they won't repost even if they
+	                        //see it later at another point in time
+	                        n.visited = true;
+	                        willRepost = Math.random();
+	                        if (willRepost < reshare) {
+	                            n.color = '#000000';
+	                            colorSim(n);
+	                        } else {
+	                            n.color = '#00FF00';
+	                        }
+	                    } else {
+	                        n.color = '#00FFFF';
+	                    }
+	                } else {
+	                    n.color = '#FFFF70';
+	                }
+                } else {
+                    n.color = '#eee';
+                }
+            }
         });
 
-	s.refresh();
+        s.refresh();
       }
+
       // When a node is clicked, we check for each node
       // if it is a neighbor of the clicked one. If not,
       // we set its color as grey, and else, it takes its
@@ -155,18 +154,18 @@
 	      if (!Boolean(simulating)) {
 	      	color(e);
 		} else {
-		e.data.node.visited = true;
-		e.data.node.color = e.data.node.originalColor;
-		colorSim(e.data.node);
-		}
-	      });
+	          e.data.node.visited = true;
+	          e.data.node.color = e.data.node.originalColor;
+	          colorSim(e.data.node);
+	      }
+      });
 
       // When the stage is clicked, we just color each
       // node and edge with its original color.
       s.bind('clickStage', function(e) {
         s.graph.nodes().forEach(function(n) {
           n.color = n.originalColor;
-	  n.visited = false;
+          n.visited = false;
         });
 
         s.graph.edges().forEach(function(e) {
@@ -178,8 +177,7 @@
       });
     }
   );
-//});
- 
+
   function runSimulation(frm) {
 		diversity = frm.diversityP.value; 
 		uniqueness = frm.uniquenessP.value;
@@ -190,7 +188,7 @@
 			simulating = true;
 			alert("all good");
 		}
-	}
+	} 
 </script>
 
 </body>
