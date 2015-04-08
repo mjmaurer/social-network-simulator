@@ -29,34 +29,45 @@
         <input type="text" name="reshareP" value="1.0">
         <input type="BUTTON" value="Run Simulation" onclick="runSimulation(this.form)">
     </form>
-    <!--<table>
+    <table>
         <tr>
-            <td>
+            <td bgColor="#eee" width="50px">
             </td>
             <td>
                 Didn't see it.
             </td>
         </tr>
         <tr>
-            <td>
+            <td width="50px" bgColor="#00FF00">
             </td>
             <td>
-                Saw the meme.
+                Interested.
             </td>
         </tr>
         <tr>
-            <td>
+            <td width="50px" bgColor="#00FFFF">
             </td>
             <td>
-                Re-shared the meme.
+                Uninterested.
             </td>
         </tr>
-    </table>-->
+        <tr>
+            <td width="50px" bgColor="#000000">
+            </td>
+            <td>
+                Re-shared.
+            </td>
+        </tr>
+    </table>
         </div>
     <div id="sigma-parent"></div>
 </div>
 
 <script>
+    var unseenColor = '#eee';
+    var seenUninterestedColor = '#00FFFF';
+    var interestedNoPostColor = '#00FF00';
+    var repostColor = '#000000';
 	var diversity = "";
 	var uniqueness = "";
 	var reshare = "";
@@ -108,14 +119,14 @@
           if (toKeep[n.id])
             n.color = n.originalColor;
           else
-            n.color = '#eee';
+            n.color = unseenColor;
         });
 
         s.graph.edges().forEach(function(e) {
           if (toKeep[e.source] && toKeep[e.target])
             e.color = e.originalColor;
           else
-            e.color = '#eee';
+            e.color = unseenColor;
       });
 
         s.refresh();
@@ -143,19 +154,19 @@
 	                        n.visited = true;
 	                        willRepost = Math.random();
 	                        if (willRepost < reshare) {
-	                            n.color = '#000000';
+	                            n.color = repostColor;
 	                            colorSim(n);
 	                        } else {
-	                            n.color = '#00FF00';
+	                            n.color = interestedNoPostColor;
 	                        }
 	                    } else {
-	                        n.color = '#00FFFF';
+	                        n.color = seenUninterestedColor;
 	                    }
 	                } else {
-	                    n.color = '#FFFF70';
+	                    n.color = unseenColor;
 	                }
                 } else {
-                    n.color = '#eee';
+                    n.color = unseenColor;
                 }
             }
         });
@@ -183,20 +194,24 @@
 	      }
       });
 
+      function reset(e) {
+          s.graph.nodes().forEach(function (n) {
+              n.color = n.originalColor;
+              n.visited = false;
+          });
+
+          s.graph.edges().forEach(function (e) {
+              e.color = e.originalColor;
+          });
+
+          // Same as in the previous event:
+          s.refresh();
+      }
+
       // When the stage is clicked, we just color each
       // node and edge with its original color.
-      s.bind('clickStage', function(e) {
-        s.graph.nodes().forEach(function(n) {
-          n.color = n.originalColor;
-          n.visited = false;
-        });
-
-        s.graph.edges().forEach(function(e) {
-          e.color = e.originalColor;
-        });
-
-        // Same as in the previous event:
-        s.refresh();
+      s.bind('clickStage', function (e) {
+          reset(e);
       });
     }
   );
@@ -211,6 +226,7 @@
 		reshare = frm.reshareP.value;
 		if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
 		    simulating = true;
+		    sigma.reset();
 		} else {
 		    alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
 		}
