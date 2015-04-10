@@ -160,6 +160,7 @@
                           //Does this user scan the screen or post new content?
                           postsNewContent = Math.random();
 
+                          n.visited = true;
                           if (postsNewContent >= uniqueness) {
                               catchesEye = Math.random();
 
@@ -167,28 +168,17 @@
                                   //If a post catches a person's eye, 
                                   //assume that they won't repost even if they
                                   //see it later at another point in time
-                                  n.visited = true;
                                   willRepost = Math.random();
                                   if (willRepost < reshare) {
-                                      if (!Boolean(n.coounted)) {
-                                          reshareCt = reshareCt + 1;
-                                          n.counted = true;
-                                      }
+                                      reshareCt = reshareCt + 1;
                                       n.color = repostColor;
                                       queue.push(n);
                                   } else {
-                                      if (!Boolean(n.counted)) {
-                                          interestCt = interestCt + 1;
-                                          n.counted = true;
-                                      }
+                                      interestCt = interestCt + 1;
                                       n.color = interestedNoPostColor;
                                   }
                               } else {
-                                  if (!Boolean(n.counted)) {
-                                      uninterestCt = uninterestCt + 1;
-                                      n.counted = true;
-                                  }
-
+                                  uninterestCt = uninterestCt + 1;
                                   n.color = seenUninterestedColor;
                               }
                           } else {
@@ -196,7 +186,6 @@
                               n.color = unseenColor;
                           }
                       } else {
-                          unseenCt = unseenCt + 1;
                           n.color = unseenColor;
                       }
                   }
