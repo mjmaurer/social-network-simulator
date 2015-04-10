@@ -111,6 +111,7 @@
       s.graph.nodes().forEach(function(n) {
         n.originalColor = n.color;
         n.visited = false;
+        n.counted = false;
       });
       s.graph.edges().forEach(function(e) {
         e.originalColor = e.color;
@@ -149,7 +150,6 @@
                     //Does this user scan the screen or post new content?
                     postsNewContent = Math.random();
 
-                    n.visited = true;
 	                if (postsNewContent >= uniqueness) {
 	                    catchesEye = Math.random();
 
@@ -157,17 +157,28 @@
 	                        //If a post catches a person's eye, 
 	                        //assume that they won't repost even if they
 	                        //see it later at another point in time
+	                        n.visited = true;
 	                        willRepost = Math.random();
 	                        if (willRepost < reshare) {
-	                            reshareCt = reshareCt + 1;
+	                            if (!Boolean(n.coounted)) {
+	                                reshareCt = reshareCt + 1;
+	                                n.counted = true;
+	                            }
 	                            n.color = repostColor;
 	                            colorSim(n);
 	                        } else {
-	                            interestCt = interestCt + 1;
+	                            if (!Boolean(n.counted)) {
+	                                interestCt = interestCt + 1;
+	                                n.counted = true;
+	                            }
 	                            n.color = interestedNoPostColor;
 	                        }
 	                    } else {
-	                        uninterestCt = uninterestCt + 1;
+	                        if (!Boolean(n.counted)) {
+	                            uninterestCt = uninterestCt + 1;
+	                            n.counted = true;
+	                        }
+
 	                        n.color = seenUninterestedColor;
 	                    }
 	                } else {
