@@ -29,7 +29,6 @@
         <input type="text" name="reshareP" value="1.0">
         <input type="BUTTON" value="Run Simulation" onclick="runSimulation(this.form)">
     </form>
-        <!--TODO: Add in a row for total unvisited nodes... instead of just unvisited nodes in the network.-->
     <table>
         <tr>
             <td></td>
@@ -225,7 +224,9 @@
                   document.getElementById("resharedCount").innerText = reshareCt;
                   document.getElementById("uninterestedCount").innerText = uninterestCt;
                   document.getElementById("interestedCount").innerText = interestCt;
-                  document.getElementById("unseenCount").innerText = unseenCt;
+
+                  //Subtract 1 to account for the node that is sharing the data.
+                  document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - 1 + ' (' + unseenCt + ' unseen in friend network)';
               }
           });
 
