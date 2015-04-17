@@ -12,3 +12,17 @@ function runSimulation(frm) {
         alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
     }
 }
+
+$(function() {
+    sigma.classes.graph.addMethod('neighbors2', function (nodeId) {
+        var k,
+            neighbors = {},
+            index = this.allNeighborsIndex[nodeId] || {};
+
+        for (k in index)
+            neighbors[k] = this.nodesIndex[k];
+
+        return neighbors;
+    });
+
+});
