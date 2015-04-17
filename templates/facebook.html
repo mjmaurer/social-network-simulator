@@ -13,6 +13,7 @@
     <script src="{{ url_for('static', filename='lib/sigma.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.parsers.gexf.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/jquery-1.11.2.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/networkSim.js') }}"></script>
 </head>
 <body>
 
@@ -254,24 +255,6 @@
           });
       }
     );
-
-    function isValidInput(n) {
-        return parseFloat(n) >= 0 && parseFloat(n) <= 1 && n != "";
-    }
-
-    function runSimulation(frm) {
-        diversity = frm.diversityP.value;
-        uniqueness = frm.uniquenessP.value;
-        reshare = frm.reshareP.value;
-        if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
-            simulating = true;
-            var e = '';
-            sigma.reset(e);
-        } else {
-            alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
-        }
-    }
-
 </script>
 
 </body>
