@@ -160,11 +160,6 @@
                           //Does this user scan the screen or post new content?
                           postsNewContent = Math.random();
 
-                          //TODO: Evaluate whether or not a user only has one chance to see the data?
-                          //Likely they should have multiple chances, so in that case, we need to restructure this
-                          //Probably this should just be moved down one level in the if statements and then we just need to subtract
-                          //one from the uninterested count if this has been counted before
-                          //n.visited = true;
                           if (postsNewContent >= uniqueness) {
                               catchesEye = Math.random();
 
