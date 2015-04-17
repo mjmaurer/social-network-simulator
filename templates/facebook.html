@@ -164,7 +164,7 @@
                           //Likely they should have multiple chances, so in that case, we need to restructure this
                           //Probably this should just be moved down one level in the if statements and then we just need to subtract
                           //one from the uninterested count if this has been counted before
-                          n.visited = true;
+                          //n.visited = true;
                           if (postsNewContent >= uniqueness) {
                               catchesEye = Math.random();
 
@@ -172,6 +172,11 @@
                                   //If a post catches a person's eye, 
                                   //assume that they won't repost even if they
                                   //see it later at another point in time
+                                  n.visited = true;
+                                  if (Boolean(n.counted)) {
+                                      unseen = unseen - 1;
+                                  }
+
                                   willRepost = Math.random();
                                   if (willRepost < reshare) {
                                       reshareCt = reshareCt + 1;
@@ -186,7 +191,10 @@
                                   n.color = seenUninterestedColor;
                               }
                           } else {
-                              unseenCt = unseenCt + 1;
+                              if (Boolean(n.counted)) {
+                                  unseenCt = unseenCt + 1;
+                                  n.counted = true;
+                              }
                               n.color = unseenColor;
                           }
                       } else {
