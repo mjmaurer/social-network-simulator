@@ -1,0 +1,122 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{times}
+\usepackage{amsmath,amsthm, amssymb, latexsym}
+\usepackage[abbr]{harvard}
+\usepackage{hyperref}
+
+\hypersetup{urlcolor=cyan,
+            colorlinks=true,
+            filecolor=cyan}
+
+\usepackage{listings}
+
+
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+
+\newcommand{\checkstylecap}{{\bf 10 }}
+\newcommand{\link}[2]{\href{#1}{\textcolor{blue}{\underline{#2}}} }
+\newcommand{\modules}{../../../../latex/}
+
+% Default settings for code listings
+\lstset{frame=tb,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\scriptsize\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  frame=single,
+  breaklines=true,
+  breakatwhitespace=true
+}
+
+
+\textwidth = 6.5 in
+\textheight = 9 in
+\oddsidemargin = 0.0 in
+\evensidemargin = 0.0 in
+\topmargin = 0.0 in
+\headheight = 0.0 in
+\headsep = 0.0 in
+\parskip = 0.0in
+\parindent = 0.0in
+
+\title{GT Student}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This assignment is about writing (sub)classes that are well-behaved members of collections, and using infrastructure interfaces to apply Collections algorithms to collections of instances of your classes.
+
+\section{Problem Description}
+
+Georgia Tech students are special people, that is, Georgia Tech students are like people but have special characteristics that affect the way they are distinguished from one another and compared to each other.  As part of a database and data analysis application, you are writing the domain classes that model Georgia Tech students.
+
+\section{Solution Description}
+
+Write all of the classes you need to model Georgia Tech students as special people, and to enable collections of Georgia Tech students to be sorted and searched using methods in Java's collections library.  The {\tt Major} enum is provided for you.
+
+\begin{itemize}
+\item Write an {\bf abstract} {\tt Person} class that is the superclass of {\tt GtStudent}.
+\begin{itemize}
+\item {\tt Person} should have a natural ordering -- in the technical sense of the term ``natural ordering'' --  based on last name, then first name.
+\item {\tt Person} should have {\tt firstName} and {\tt lastName} fields of type {\tt String} with corresponding getter mthods, and a single constructor that takes first name and last name parameters whose values are used to initialize the corresponding fields.
+\item {\tt Person} should be immutable.
+\item Instances of a minimal concrete subclass of {\tt Person} (classes that do nothing more than extend {\tt Person}) should behave properly as elements of any Java collection, including hash-based.
+\end{itemize}
+\item Write a {\tt GtPerson} class that adds the fields {\tt year} of type {\tt int}, {\tt gpa} of type {\tt double}, and {\tt major} of type {\tt Major}, with corresponding setter and getter methods for each added field.
+\item Write a {\tt Comparator<GtStudent>} class that compares {\tt GtStudent}s by year, then by major using the provided {\tt Major} enum, then by GPA{\tt gpa}, then by {\tt lastName}, then by {\tt firstName}.
+\end{itemize}
+
+\begin{lstlisting}[language=bash]
+
+\end{lstlisting}
+
+\section{Bonus}
+
+Write
+
+\section{Tips}
+
+\begin{itemize}
+\item Use the provided JUnit tests to guide your work.  The JUnit tests use the public API you are being asked to create for your classes and test the behavior you're being asked to implement.
+\item Use the provided JUnit tests to check your work.  The JUnit test reports contain the rubric we will use for grading.  If the JUnit tests all pass, you'll likely get an A.
+\item You can run the JUnit test with the {\tt test} target in the provided Ant build file.  Invoke it with {\tt ant test}.
+\end{itemize}
+
+\input{\modules checkstyle.tex}
+
+\section{Using the Submission Tool}
+Included with this timed lab is a handy-dandy submission tool. You will not submit to T-Square, but will use this instead.
+The commands are:
+
+\begin{itemize}
+\item {\tt ant} or {\tt ant compile} compiles your Java source files.
+\item {\tt ant test} runs the provided JUnit tests. For this timed lab, the output will be your grade. Of course, we reserve the right to make changes to the grading rubric if necessary, but if you pass these tests, you've
+done it correctly.
+\item {\tt ant checkstyle} is a convenient way of running checkstyle without typing that obnoxious command.
+\item {\tt ant run} will run the code.
+\item {\tt ant submit} will actually submit your code to the GT Github repo. This will prompt you for your user name and password each time, but you can run it as many times as you want if you want to keep resubmitting as you make minor changes.
+\end{itemize}
+
+
+\section{Confirm Your Submission}
+Your submission was pushed to a git repository on github.gatech.edu. After running {\tt ant submit}, a new
+browser window should open at the repository, at https://github.gatech.edu/[your-username]/[your-username]-timedlab2
+
+
+\end{document}
