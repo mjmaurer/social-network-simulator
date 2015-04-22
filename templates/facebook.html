@@ -9,6 +9,34 @@
             height: 100%;
             position: absolute;
         }
+          .button {
+	        text-shadow: 0 -1px 1px rgba(0,0,0,0.25), -2px 0 1px rgba(0,0,0,0.25);
+	        border-radius: 5px;
+	        -moz-border-radius: 5px;
+	        -webkit-border-radius: 5px;
+	        -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+	        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+	        color: white;
+	        padding: 5px 10px 5px;
+	        white-space: nowrap;
+	        text-decoration: none;
+	        cursor: pointer;
+	        background: #0000FF;
+	        border-style: none;
+	        text-align: center;
+	        overflow: hidden;
+        }
+ 
+        .button:hover,
+        .button:focus {
+	        background: #1919FF;
+	        color: white;
+        }
+
+        .button:active {
+            -moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.7);
+            -webkit-box-shadow: none;
+        }
     </style>
     <script src="{{ url_for('static', filename='lib/sigma.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.parsers.gexf.min.js') }}"></script>
@@ -19,16 +47,27 @@
 
 <div id="main-div">
     <div id="menu-id">
+    <div class="toggle-btn-grp joint-toggle">
+        <label onclick="oneShare()" class="toggle"><input type="radio" name="shareMode" />1 Sharer</label>
+        <label onclick="multiShare()" class="toggle"><input type="radio" name="shareMode" />Multiple Sharer</label>
+    </div>
     <form id="FBSim" action="form_action.asp">
-        Diversity
-        <input type="text" name="diversityP" value="0">
+        <span title="How closely interests align across the network">
+            Diversity
+            <input type="text" name="diversityP" value="0" class="diversity">
+        </span>
 
-        Unique Content
-        <input type="text" name="uniquenessP" value="0">
+        <span title="Frequency of unique content being posted to network">
+            Unique Content
+            <input type="text" name="uniquenessP" value="0">
+        </span>
 
-        Re-Share Probability
-        <input type="text" name="reshareP" value="1.0">
-        <input type="BUTTON" value="Run Simulation" onclick="runSimulation(this.form)">
+        <span title="Probability that someone will reshare content they like">
+            Re-Share Probability
+            <input type="text" name="reshareP" value="1.0">
+        </span>
+
+        <input type="BUTTON" class="button" value="Run Simulation" onclick="runSimulation(this.form)">
     </form>
     <table>
         <tr>
@@ -61,12 +100,19 @@
             <td id="uninterestedCount"></td>
         </tr>
         <tr>
-            <td width="50px" bgColor="#000000">
+            <td width="50px" bgColor="#FF0000">
             </td>
             <td>
                 Re-shared.
             </td>
             <td id="resharedCount"></td>
+        </tr>
+        <tr>
+            <td width="50px" bgcolor="#000000"></td>
+            <td>
+                Original sharers.
+            </td>
+            <td id="originalSharers"></td>
         </tr>
     </table>
         </div>
@@ -77,7 +123,8 @@
     var unseenColor = '#eee';
     var seenUninterestedColor = '#00FFFF';
     var interestedNoPostColor = '#00FF00';
-    var repostColor = '#000000';
+    var repostColor = '#FF0000';
+    var shareColor = '#000000';
     var diversity = "";
     var uniqueness = "";
     var reshare = "";
@@ -87,7 +134,18 @@
     var uninterestCt = 0;
     var unseenCt = 0;
     var simulating;
+    var mode;
+    var sharingMode = false;
+    var startNodes = [];
+    var startNodesCount = 0;
 
+    function oneShare() {
+        sharingMode = false;
+    }
+
+    function multiShare() {
+        sharingMode = true;
+    }
     
         //Queue of nodes to be visited
         var queue = [];
@@ -145,7 +203,14 @@
               }
 
               function colorQueue(node) {
-                  queue.push(node);
+                  if (!Boolean(mode)) {
+                      queue.push(node);
+                  } else {
+                      node.forEach(function (n) {
+                          queue.push(n.data.node);
+                      });
+                  }
+                      
                   while (queue.length > 0) {
                       colorSim(queue.shift());
                   }
@@ -217,21 +282,42 @@
                   if (!Boolean(simulating)) {
                       color(e);
                   } else {
-                      startNode = e.data.node.label;
                       reshareCt = 0;
                       uninterestCt = 0;
                       interestCt = 0;
                       unseenCt = 0;
-                      document.getElementById("startingNode").innerText = startNode;
-                      e.data.node.visited = true;
-                      e.data.node.color = e.data.node.originalColor;
-                      colorQueue(e.data.node);
-                      document.getElementById("resharedCount").innerText = reshareCt;
-                      document.getElementById("uninterestedCount").innerText = uninterestCt;
-                      document.getElementById("interestedCount").innerText = interestCt;
+
+                      if (!Boolean(mode)) {
+                          startNode = e.data.node.label;
+                          startNodesCount = 1;
+                          document.getElementById("startingNode").innerText = startNode;
+                          e.data.node.visited = true;
+                          e.data.node.color = shareColor;
+                          colorQueue(e.data.node);
+
+                      } else {
+                          startNodes[startNodesCount] = e;
+                          startNodesCount++;
+                          document.getElementById("startingNode").innerText += ', ' + nodeList;
+                          var i = 0;
+                          startNodes.forEach(function (n) {
+                              if (i == 0) {
+                                  startNode = n.data.node.label;
+                              } else {
+                                  startNode += ', ' + n.data.node.label;
+                              }
+                              n.data.node.visited = true;
+                              n.data.node.color = shareColor;
+                          });
+                          colorQueue(startNodes);
+                      }
+                          document.getElementById("resharedCount").innerText = reshareCt;
+                          document.getElementById("uninterestedCount").innerText = uninterestCt;
+                          document.getElementById("interestedCount").innerText = interestCt;
 
                       //Subtract 1 to account for the node that is sharing the data.
-                      document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - 1 + ' (' + unseenCt + ' unseen in friend network)';
+                          document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - 1 + ' (' + unseenCt + ' unseen in friend network)';
+                          document.getElementById("originalSharers").innerText = document.getElementById("startingNode").innerText + ' (' + startNodesCount + ')';
                   }
               });
 
@@ -252,7 +338,9 @@
               // When the stage is clicked, we just color each
               // node and edge with its original color.
               s.bind('clickStage', function (e) {
-                  reset(e);
+                  if (!Boolean(simulating)) {
+                      reset(e);
+                  }
               });
           }
         );

@@ -9,6 +9,10 @@ function runSimulation(frm) {
     reshare = frm.reshareP.value;
     if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
         simulating = true;
+        mode = sharingMode;
+        startNode = "";
+        startNodes = [];
+        startNodesCount = 0;
     } else {
         alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
     }
