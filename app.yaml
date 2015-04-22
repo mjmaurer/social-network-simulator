@@ -4,8 +4,6 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
-default_expiration: "0d 0h"
-
 handlers:
 - url: .*
   script: main.app
