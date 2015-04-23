@@ -172,6 +172,7 @@
                   n.originalColor = n.color;
                   n.visited = false;
                   n.counted = false;
+                  n.unseen = true;
               });
               s.graph.edges().forEach(function (e) {
                   e.originalColor = e.color;
@@ -233,7 +234,11 @@
                                       //see it later at another point in time
                                       n.visited = true;
                                       if (Boolean(n.counted)) {
-                                          unseen = unseen - 1;
+                                          if (Boolean(n.unseen)) {
+                                              unseenCt--;
+                                          } else {
+                                              uninterestCt--;
+                                          }
                                       }
 
                                       willRepost = Math.random();
@@ -246,18 +251,30 @@
                                           n.color = interestedNoPostColor;
                                       }
                                   } else {
-                                      uninterestCt = uninterestCt + 1;
+                                      if (Boolean(n.counted)) {
+                                          if (Boolean(n.unseen)) {
+                                              uninterestCt = uninterestCt + 1;
+                                              unseenCt--;
+                                          }
+
+                                      } else {
+                                          uninterestCt = uninterestCt + 1;
+                                          n.counted = true;
+                                      }
+
                                       n.color = seenUninterestedColor;
+                                      n.unseen = false;
                                   }
                               } else {
-                                  if (Boolean(n.counted)) {
+                                  if (!Boolean(n.counted)) {
                                       unseenCt = unseenCt + 1;
                                       n.counted = true;
                                   }
-                                  n.color = unseenColor;
                               }
                           } else {
-                              n.color = unseenColor;
+                              if (!Boolean(n.counted)) {
+                                  n.color = unseenColor;
+                              }
                           }
                       }
                   });
@@ -327,9 +344,16 @@
               });
 
               function reset(e) {
+                  
                   s.graph.nodes().forEach(function (n) {
-                      n.color = n.originalColor;
+                      if (!simulating) {
+                          n.color = n.originalColor;
+                      } else {
+                          n.color = n.unseenColor;
+                      }
                       n.visited = false;
+                      n.counted = false;
+                      n.unseen = true;
                   });
 
                   s.graph.edges().forEach(function (e) {
