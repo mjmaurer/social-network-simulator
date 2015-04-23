@@ -41,7 +41,6 @@
     <script src="{{ url_for('static', filename='lib/sigma.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.parsers.gexf.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/jquery-1.11.2.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='lib/networkDefaults.js') }}"></script>
 </head>
 <body>
 
@@ -79,7 +78,14 @@
             <td id="unseenCount"></td>
         </tr>
         <tr>
-            <td width="50px" bgColor="#00FF00">
+            <td width="50px" bgcolor="#75ff46"></td>
+            <td>
+                Uninterested.
+            </td>
+            <td id="uninterestedCount"></td>
+        </tr>
+        <tr>
+            <td width="50px" bgColor="#64c88">
             </td>
             <td>
                 Interested.
@@ -87,23 +93,14 @@
             <td id="interestedCount"></td>
         </tr>
         <tr>
-            <td width="50px" bgColor="#00FFFF">
-            </td>
-            <td>
-                Uninterested.
-            </td>
-            <td id="uninterestedCount"></td>
-        </tr>
-        <tr>
-            <td width="50px" bgColor="#FF0000">
-            </td>
+            <td width="50px" bgcolor="#0025E0"></td>
             <td>
                 Re-shared.
             </td>
             <td id="resharedCount"></td>
         </tr>
         <tr>
-            <td width="50px" bgcolor="#000000"></td>
+            <td width="50px" bgcolor="#050F1A"></td>
             <td>
                 Original sharers.
             </td>
@@ -116,10 +113,10 @@
 
 <script>
     var unseenColor = '#eee';
-    var seenUninterestedColor = '#00FFFF';
-    var interestedNoPostColor = '#00FF00';
-    var repostColor = '#FF0000';
-    var shareColor = '#000000';
+    var seenUninterestedColor = '#75ff46';
+    var interestedNoPostColor = '#64c888';
+    var repostColor = '#0025E0';
+    var shareColor = '#050F1A';
     var diversity = "";
     var uniqueness = "";
     var reshare = "";
@@ -134,14 +131,32 @@
     var startNodes = [];
     var startNodesCount = 0;
 
+
+    function isValidInput(n) {
+        return parseFloat(n) >= 0 && parseFloat(n) <= 1 && n != "";
+    }
+
+    function runSimulation(frm) {
+        diversity = frm.diversityP.value;
+        uniqueness = frm.uniquenessP.value;
+        reshare = frm.reshareP.value;
+        if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
+            simulating = true;
+            mode = sharingMode;
+            startNode = "";
+            startNodes = [];
+            startNodesCount = 0;
+        } else {
+            alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
+        }
+    }
+
     function oneShare() {
         sharingMode = false;
-        mode = sharingMode;
     }
 
     function multiShare() {
         sharingMode = true;
-        mode = sharingMode;
     }
     
         //Queue of nodes to be visited
@@ -268,6 +283,7 @@
                               } else {
                                   if (!Boolean(n.counted)) {
                                       unseenCt = unseenCt + 1;
+                                      n.color = unseenColor;
                                       n.counted = true;
                                   }
                               }
@@ -327,7 +343,9 @@
                                   }
 
                               n.visited = true;
-                              n.color = shareColor;
+                              if (startNodesCount > 0) {
+                                  n.color = shareColor;
+                              }
                               i++;
                           });
 
