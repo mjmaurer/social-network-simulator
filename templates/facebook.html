@@ -71,11 +71,6 @@
     </form>
     <table>
         <tr>
-            <td></td>
-            <td>Start Node:</td>
-            <td id="startingNode"></td>
-        </tr>
-        <tr>
             <td bgColor="#eee" width="50px">
             </td>
             <td>
@@ -141,10 +136,12 @@
 
     function oneShare() {
         sharingMode = false;
+        mode = sharingMode;
     }
 
     function multiShare() {
         sharingMode = true;
+        mode = sharingMode;
     }
     
         //Queue of nodes to be visited
@@ -207,7 +204,7 @@
                       queue.push(node);
                   } else {
                       node.forEach(function (n) {
-                          queue.push(n.data.node);
+                          queue.push(n);
                       });
                   }
                       
@@ -275,9 +272,15 @@
               // We do the same for the edges, and we only keep
               // edges that have both extremities colored.
               s.bind('clickNode', function (e) {
-                  s.graph.nodes().forEach(function (n) {
-                      n.visited = false;
-                  });
+                  var drop = false;
+                  var idx = startNodes.indexOf(e.data.node);
+                  if (idx >= 0) {
+                      drop = true;
+                      startNodes.splice(idx, idx + 1);
+                      startNodesCount--;
+                  } 
+
+                  reset(e);
 
                   if (!Boolean(simulating)) {
                       color(e);
@@ -287,28 +290,30 @@
                       interestCt = 0;
                       unseenCt = 0;
 
-                      if (!Boolean(mode)) {
+                      if (!Boolean(mode) && !Boolean(drop)) {
                           startNode = e.data.node.label;
                           startNodesCount = 1;
-                          document.getElementById("startingNode").innerText = startNode;
                           e.data.node.visited = true;
                           e.data.node.color = shareColor;
                           colorQueue(e.data.node);
-
-                      } else {
-                          startNodes[startNodesCount] = e;
-                          startNodesCount++;
-                          document.getElementById("startingNode").innerText += ', ' + nodeList;
+                      } else if (Boolean(mode)) {
+                          if (!Boolean(drop)) {
+                              startNodes[startNodesCount] = e.data.node;
+                              startNodesCount++;
+                          }
                           var i = 0;
                           startNodes.forEach(function (n) {
                               if (i == 0) {
-                                  startNode = n.data.node.label;
+                                  startNode = n.label;
                               } else {
-                                  startNode += ', ' + n.data.node.label;
-                              }
-                              n.data.node.visited = true;
-                              n.data.node.color = shareColor;
+                                  startNode += ', ' + n.label;
+                                  }
+
+                              n.visited = true;
+                              n.color = shareColor;
+                              i++;
                           });
+
                           colorQueue(startNodes);
                       }
                           document.getElementById("resharedCount").innerText = reshareCt;
@@ -316,9 +321,9 @@
                           document.getElementById("interestedCount").innerText = interestCt;
 
                       //Subtract 1 to account for the node that is sharing the data.
-                          document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - 1 + ' (' + unseenCt + ' unseen in friend network)';
-                          document.getElementById("originalSharers").innerText = document.getElementById("startingNode").innerText + ' (' + startNodesCount + ')';
-                  }
+                          document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - startNodesCount + ' (' + unseenCt + ' unseen in friend network)';
+                          document.getElementById("originalSharers").innerText = startNode + ' (' + startNodesCount + ')';
+                      }
               });
 
               function reset(e) {
@@ -330,6 +335,8 @@
                   s.graph.edges().forEach(function (e) {
                       e.color = e.originalColor;
                   });
+
+                  startNode = '';
 
                   // Same as in the previous event:
                   s.refresh();
