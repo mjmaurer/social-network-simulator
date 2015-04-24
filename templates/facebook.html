@@ -67,7 +67,8 @@
         </span>
 
         <input type="BUTTON" class="button" value="Run Simulation" onclick="runSimulation(this.form)">
-        <input type="BUTTON" class="button" value="Get Simulation Data" onclick="getData()">
+        <input type="BUTTON" class="button" value="Get Current Simulation Data" onclick="getCurrentData()">
+        <input type="BUTTON" class="button" value="Get Average Data" onclick="getAverageData()">
     </form>
     <table>
         <tr>
@@ -132,16 +133,29 @@
     var startNodes = [];
     var startNodesCount = 0;
     var size = 1;
+    var networkLength = 0;
 
-    function getData() {
-        var row1 = ["Start Node(s): "]
+    function getCurrentData() {
+        var row1 = ["Network Size: ", networkLength]
+        var row2 = ["Start Node(s): "]
         var k = 0;
+        
+
         while (k < startNodes.length) {
-            row1[k + 1] = startNodes[k].label;
+            row2[k + 1] = startNodes[k].label;
             k++;
         }
 
-        var data = [row1];
+        var row3 = ["Diversity: ", diversity];
+        var row4 = ["Uniqueness: ", uniqueness];
+        var row5 = ["Reshare Rate: ", reshare];
+        var row6 = ["Reshare Count: ", reshareCt];
+        var row7 = ["Interest Count: ", interestCt];
+        var row8 = ["Uninterest Count: ", uninterestCt];
+        var row9 = ["Unseen Count in Visited Nodes: ", unseenCt];
+        var row10 = ["Total Unseen Count: ", networkLength - reshareCt - interestCt - uninterestCt - startNodesCount];
+
+        var data = [row1, row2, row3, row4, row5, row6, row7, row8, row9, row10];
         var csvContent = "data:text/csv;charset=utf-8,";
         data.forEach(function (infoArray, index) {
             dataString = infoArray.join(",");
@@ -153,7 +167,7 @@
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "simulationData.csv");
 
-        link.click(); // This will download the data file named "my_data.csv".
+        link.click(); // This will download the data file named "simulationData.csv".
     }
 
     function isValidInput(n) {
@@ -205,6 +219,7 @@
               container: 'sigma-parent'
           },
           function (s) {
+              networkLength = s.graph.nodes().length;
               // We first need to save the original colors of our
               // nodes and edges, like this:
               s.graph.nodes().forEach(function (n) {
@@ -240,13 +255,9 @@
               }
 
               function colorQueue(node) {
-                  if (!Boolean(mode)) {
-                      queue.push(node);
-                  } else {
-                      node.forEach(function (n) {
-                          queue.push(n);
-                      });
-                  }
+                  node.forEach(function (n) {
+                      queue.push(n);
+                  });
                       
                   var i = 0;
                   while (queue.length > 0) {
@@ -354,12 +365,12 @@
                       interestCt = 0;
                       unseenCt = 0;
 
-                      if (!Boolean(mode) && !Boolean(drop)) {
+                      if (!Boolean(mode)) {
                           startNode = e.data.node.label;
                           startNodesCount = 1;
                           e.data.node.visited = true;
                           e.data.node.color = shareColor;
-                          colorQueue(e.data.node);
+                          startNodes[0] = e.data.node;
                       } else if (Boolean(mode)) {
                           if (!Boolean(drop)) {
                               startNodes[startNodesCount] = e.data.node;
@@ -377,14 +388,15 @@
                               if (startNodesCount > 0) {
                                   n.color = shareColor;
                               }
+
                               i++;
                           });
-
-                          colorQueue(startNodes);
                       }
-                          document.getElementById("resharedCount").innerText = reshareCt;
-                          document.getElementById("uninterestedCount").innerText = uninterestCt;
-                          document.getElementById("interestedCount").innerText = interestCt;
+
+                      colorQueue(startNodes);
+                      document.getElementById("resharedCount").innerText = reshareCt;
+                      document.getElementById("uninterestedCount").innerText = uninterestCt;
+                      document.getElementById("interestedCount").innerText = interestCt;
 
                       //Subtract 1 to account for the node that is sharing the data.
                           document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - startNodesCount + ' (' + unseenCt + ' unseen in friend network)';
