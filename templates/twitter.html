@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        #sigma-parent {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        #load {
+            min-width: 250px;
+            min-height: 250px;
+            padding: 13px;
+            display: inline-block;
+        }
+        .button {
+            text-shadow: 0 -1px 1px rgba(0,0,0,0.25), -2px 0 1px rgba(0,0,0,0.25);
+            border-radius: 5px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            color: white;
+            padding: 5px 10px 5px;
+            white-space: nowrap;
+            text-decoration: none;
+            cursor: pointer;
+            background: #0000FF;
+            border-style: none;
+            text-align: center;
+            overflow: hidden;
+        }
+ 
+        .button:hover,
+        .button:focus {
+            background: #1919FF;
+            color: white;
+        }
+
+        .button:active {
+            -moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.7);
+            -webkit-box-shadow: none;
+        }
+    </style>
+    <script src="{{ url_for('static', filename='lib/sigma.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.parsers.json.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/sigma-plugins/sigma.layout.forceAtlas2.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/jquery-1.11.2.min.js') }}"></script>
+</head>
+<body>
+
+<div id="main-div">
+    <div id="sigma-parent"></div>
+</div>
+
+<div style="text-align:center" id="load">
+  <img align="middle" src="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif"/>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $.ajax({
+      url: "{{ url_for('get_twit_graph') }}",
+      crossDomain: true,
+      dataType: 'json',
+      data: {},
+      success: function(data) {
+        $("#load").hide();
+        s = new sigma({ 
+            graph: data,
+            container: 'sigma-parent',
+            settings: {
+                defaultNodeColor: '#ec5148'
+            }
+        });
+
+        var i, 
+          nodes = s.graph.nodes(),
+          len = nodes.length;
+
+        for (i = 0; i < len; i++) {
+            nodes[i].x = Math.random();
+            nodes[i].y = Math.random();
+            nodes[i].size = s.graph.degree(nodes[i].id);
+            nodes[i].color = nodes[i].center ? '#333' : '#666';
+        }
+
+        // Refresh the display:
+        s.refresh();
+
+        // ForceAtlas Layout
+        s.startForceAtlas2();
+      },
+      error: function (request, status, error) {
+        alert("here");
+        $("#result").text(request.responseText);
+      }
+    });
+  })
+  
+</script>
+</body>
+
+</html>
