@@ -1,7 +1,8 @@
-from flask import Flask, session, redirect, request, send_from_directory, render_template
+from flask import Flask, session, redirect, request, send_from_directory, render_template, jsonify
 import tweepy
 from models import Tok
 import urllib
+from sets import Set
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,asdf?RT'
@@ -72,14 +73,80 @@ def twit_auth():
     session['access_token'] = auth.access_token
     session['access_token_secret'] = auth.access_token_secret
 
+    return render_template('twitter.html')
+
+@app.route('/get_twit_graph')
+def get_twit_graph():
+
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(session['access_token'], session['access_token_secret'])
 
     api = tweepy.API(auth)
-    api.update_status(status='tweepy + oauth!')
 
-    return "DID ITT"
+    authUser = api.me()
+    edgeCount = 0
+    userSet = Set()
+    edgeList = []
+    userSet.add(UserInfo(authUser.screen_name, authUser.id))
 
+    # Get friends and followers of authenticated user
+    try:
+        for user in tweepy.Cursor(api.followers).items(20):
+            userSet.add(UserInfo(user.screen_name, user.id))
+            edgeList.append({'id':'e'+ str(edgeCount), 'source':str(user.id), 'target':str(authUser.id)})
+            edgeCount = edgeCount + 1
+    except tweepy.TweepError:
+        app.logger.debug("Rate limited init follow. Users so far: " + str(len(userSet)))
+
+    try:
+        for user in tweepy.Cursor(api.friends).items(20):
+            userSet.add(UserInfo(user.screen_name, user.id))
+            edgeList.append({'id':'e'+ str(edgeCount), 'source':str(authUser.id), 'target':str(user.id)})
+            edgeCount = edgeCount + 1
+    except tweepy.TweepError:
+        app.logger.debug("Rate limited in init friends. Users so far: " + str(len(userSet)))
+
+    firstUsers = list(userSet)
+    # Get friends and followers of up to 14 more users (due to rate limit)
+    for i in range(14):
+        curUser = firstUsers[i]
+
+        try:
+            for user in tweepy.Cursor(api.followers, screen_name=curUser.name).items(20):
+                userSet.add(UserInfo(user.screen_name, user.id))
+                edgeList.append({'id':'e'+ str(edgeCount), 'source':str(user.id), 'target':str(curUser.userId)})
+                edgeCount = edgeCount + 1
+        except tweepy.TweepError:
+            app.logger.debug("Follow rate limited at user: " + str(i))
+
+
+        try:
+            for user in tweepy.Cursor(api.friends, screen_name=curUser.name).items(20):
+                userSet.add(UserInfo(user.screen_name, user.id))
+                edgeList.append({'id':'e'+ str(edgeCount), 'source':str(curUser.userId), 'target':str(user.id)})
+                edgeCount = edgeCount + 1
+        except tweepy.TweepError:
+            app.logger.debug("Friends rate limited at user: " + str(i))
+
+    nodesList = []
+    for user in userSet:
+        nodesList.append({'id':str(user.userId), 'label':str(user.name), 'size':9})
+
+
+    return jsonify(nodes=nodesList, edges=edgeList)
+
+
+class UserInfo:
+
+    def __init__(self,name,userId):
+        self.name = name
+        self.userId = userId
+
+    def __hash__(self):
+        return hash((self.name, self.userId))
+
+    def __eq__(self, other):
+        return (self.name, self.userId) == (other.name, other.userId)
 
 @app.route('/static/<path:path>')
 def send_js(path):
