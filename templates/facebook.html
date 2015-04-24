@@ -50,6 +50,7 @@
         <label onclick="oneShare()" class="toggle"><input type="radio" name="shareMode" />1 Sharer</label>
         <label onclick="multiShare()" class="toggle"><input type="radio" name="shareMode" />Multiple Sharer</label>
         <label class="step"><input type="checkbox" id="step"name="iterations" />Step-by-step Visualizations</label>
+        <label class="trials"><input type="number" id="trials"name="iterations" value="1" />Number Trials</label>
     </div>
     <form id="FBSim" action="form_action.asp">
         <span title="How closely interests align across the network">
@@ -69,7 +70,6 @@
 
         <input type="BUTTON" class="button" value="Run Simulation" onclick="runSimulation(this.form)">
         <input type="BUTTON" class="button" value="Get Current Simulation Data" onclick="getCurrentData()">
-        <input type="BUTTON" class="button" value="Get Average Data" onclick="getAverageData()">
     </form>
     <table>
         <tr>
@@ -136,15 +136,22 @@
     var networkLength = 0;
     var simulating;
     var mode;
-    var levels = 0;
+    var trials = 1;
     var stepMode;
-    var mostSignificantNode;
 
     //Output Values
     var reshareCt = 0;
     var interestCt = 0;
     var uninterestCt = 0;
     var unseenCt = 0;
+    var levels = 0;
+    var mostSignificantNode;
+    var reshareData = [];
+    var interestData = [];
+    var uninterestData = [];
+    var unseenData = [];
+    var levelsData = [];
+    var significantNodesData = [];
 
     function getCurrentData() {
         var row1 = ["Network Size: ", networkLength]
@@ -157,18 +164,53 @@
             k++;
         }
 
+
         var row3 = ["Diversity: ", diversity];
         var row4 = ["Uniqueness: ", uniqueness];
         var row5 = ["Reshare Rate: ", reshare];
-        var row6 = ["Reshare Count: ", reshareCt];
-        var row7 = ["Interest Count: ", interestCt];
-        var row8 = ["Uninterest Count: ", uninterestCt];
-        var row9 = ["Unseen Count in Visited Nodes: ", unseenCt];
-        var row10 = ["Total Unseen Count: ", networkLength - reshareCt - interestCt - uninterestCt - startNodesCount];
-        var row11 = ["Number of Iterations: ", level];
-        var row12 = ["Most Significant Person: ", mostSignificantNode.label, mostSignificantNode.seenFriends];
 
-        var data = [row1, row2, row3, row4, row5, row6, row7, row8, row9, row10, row11, row12];
+        var blank = [""];
+
+        var title = ["", "Current", "Average (with " + trials + " trials)"];
+
+        var avgReshare = 0.0;
+        var avgInterest = 0.0;
+        var avgUninterest = 0.0;
+        var avgUnseen = 0.0;
+        var avgLevels = 0.0;
+        var avgUnseenTotal = 0.0;
+        var row12 = ["Most Significant Person: ", mostSignificantNode.label, mostSignificantNode.seenFriends];
+        var row13 = ["Significant Person List: "];
+        var mid = [];
+        for (m = 0; m < trials; m++) {
+            avgReshare += reshareData[m];
+            avgInterest += interestData[m];
+            avgUninterest += uninterestData[m];
+            avgUnseen += unseenData[m];
+            avgLevels += levelsData[m];
+            avgUnseenTotal += networkLength - reshareData[m] - interestData[m] - uninterestData[m] - startNodesCount;
+            var temp = [significantNodesData[m].label, significantNodesData[m].seenFriends];
+            mid[m] = temp;
+        }
+
+        row13[1] = mid;
+
+        avgInterest /= trials;
+        avgLevels /= trials;
+        avgReshare /= trials;
+        avgUninterest /= trials;
+        avgUnseen /= trials;
+        avgUnseenTotal /= trials;
+
+        var row6 = ["Reshare Count: ", reshareCt, avgReshare];
+        var row7 = ["Interest Count: ", interestCt, avgInterest];
+        var row8 = ["Uninterest Count: ", uninterestCt, avgUninterest];
+        var row9 = ["Unseen Count in Visited Nodes: ", unseenCt, avgUnseen];
+        var row10 = ["Total Unseen Count: ", networkLength - reshareCt - interestCt - uninterestCt - startNodesCount, avgUnseenTotal];
+        var row11 = ["Number of Iterations: ", level, avgLevels];
+
+
+        var data = [row1, row2, row3, row4, row5, blank, title, row6, row7, row8, row9, row10, row11, blank, row12, row13];
         var csvContent = "data:text/csv;charset=utf-8,";
         data.forEach(function (infoArray, index) {
             dataString = infoArray.join(",");
@@ -188,9 +230,18 @@
     }
 
     function runSimulation(frm) {
+        alert("Click a vertex to repeatedly run the simulation");
+        reshareData = [];
+        interestData = [];
+        uninterestData = [];
+        unseenData = [];
+        levelsData = [];
+        significantNodesData = [];
+
         diversity = frm.diversityP.value;
         uniqueness = frm.uniquenessP.value;
         reshare = frm.reshareP.value;
+        trials = document.getElementById("trials").value;
         if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
             simulating = true;
             mode = sharingMode;
@@ -276,7 +327,6 @@
           //Push null to the queue to keep track of the levels
           queue.push(null);
 
-          level = 1;
           while (queue.length > 0) {
               var q = queue.shift();
               if (q == null) {
@@ -291,8 +341,8 @@
               } else {
                   colorSim(q);
               }
-                  }
-      }
+          }
+          }
 
           function colorSim(node) {
               var nodeId = node.id,
@@ -367,6 +417,8 @@
               s.refresh();
           }
 
+          var drop = false;
+
           // When a node is clicked, we check for each node
           // if it is a neighbor of the clicked one. If not,
           // we set its color as grey, and else, it takes its
@@ -374,7 +426,7 @@
           // We do the same for the edges, and we only keep
           // edges that have both extremities colored.
           s.bind('clickNode', function (e) {
-              var drop = false;
+              drop = false;
               var idx = startNodes.indexOf(e.data.node);
               if (idx >= 0) {
                   drop = true;
@@ -382,58 +434,75 @@
                   startNodesCount--;
               } 
 
-              reset(e);
 
               if (!Boolean(simulating)) {
+                  reset(e);
                   color(e);
               } else {
-                  reshareCt = 0;
-                  uninterestCt = 0;
-                  interestCt = 0;
-                  unseenCt = 0;
 
-                  if (!Boolean(mode)) {
-                      startNode = e.data.node.label;
-                      startNodesCount = 1;
-                      e.data.node.visited = true;
-                      e.data.node.color = shareColor;
-                      startNodes[0] = e.data.node;
-                  } else if (Boolean(mode)) {
-                      if (!Boolean(drop)) {
-                          startNodes[startNodesCount] = e.data.node;
-                          startNodesCount++;
-                      }
+                  var c = 0;
+                  while (c < trials) {
+                      reset(e);
+                      simulate(e);
+                      c++;
+                      reshareData.push(reshareCt);
+                      interestData.push(interestCt);
+                      uninterestData.push(uninterestCt);
+                      unseenData.push(unseenCt);
+                      levelsData.push(level);
+                      significantNodesData.push(mostSignificantNode);
+                  }
+              }
 
-                      var i = 0;
-                      startNodes.forEach(function (n) {
-                          if (i == 0) {
-                              startNode = n.label;
-                          } else {
-                              startNode += ', ' + n.label;
-                          }
+              document.getElementById("resharedCount").innerText = reshareCt;
+              document.getElementById("uninterestedCount").innerText = uninterestCt;
+              document.getElementById("interestedCount").innerText = interestCt;
 
-                          n.visited = true;
-                          if (startNodesCount > 0) {
-                              n.color = shareColor;
-                          }
+              //Subtract 1 to account for the node that is sharing the data.
+              document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - startNodesCount + ' (' + unseenCt + ' unseen in friend network)';
+              document.getElementById("originalSharers").innerText = startNode + ' (' + startNodesCount + ')';
+          });
 
-                          i++;
-                      });
+          function simulate (e) {
+              reshareCt = 0;
+              uninterestCt = 0;
+              interestCt = 0;
+              unseenCt = 0;
+              level = 1;
+
+              if (!Boolean(mode)) {
+                  startNode = e.data.node.label;
+                  startNodesCount = 1;
+                  e.data.node.visited = true;
+                  e.data.node.color = shareColor;
+                  startNodes[0] = e.data.node;
+              } else if (Boolean(mode)) {
+                  if (!Boolean(drop)) {
+                      startNodes[startNodesCount] = e.data.node;
+                      startNodesCount++;
                   }
 
-                  colorQueue(startNodes);
+                  var i = 0;
+                  startNodes.forEach(function (n) {
+                      if (i == 0) {
+                          startNode = n.label;
+                      } else {
+                          startNode += ', ' + n.label;
+                      }
 
-                  updateMostSig();
+                      n.visited = true;
+                      if (startNodesCount > 0) {
+                          n.color = shareColor;
+                      }
 
-                  document.getElementById("resharedCount").innerText = reshareCt;
-                  document.getElementById("uninterestedCount").innerText = uninterestCt;
-                  document.getElementById("interestedCount").innerText = interestCt;
-
-                  //Subtract 1 to account for the node that is sharing the data.
-                  document.getElementById("unseenCount").innerText = s.graph.nodes().length - reshareCt - uninterestCt - interestCt - startNodesCount + ' (' + unseenCt + ' unseen in friend network)';
-                  document.getElementById("originalSharers").innerText = startNode + ' (' + startNodesCount + ')';
+                      i++;
+                  });
               }
-          });
+
+              colorQueue(startNodes);
+
+              updateMostSig();
+          };
 
           function updateMostSig() {
               var max;
