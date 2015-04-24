@@ -138,6 +138,7 @@
     var mode;
     var levels = 0;
     var stepMode;
+    var mostSignificantNode;
 
     //Output Values
     var reshareCt = 0;
@@ -165,7 +166,7 @@
         var row9 = ["Unseen Count in Visited Nodes: ", unseenCt];
         var row10 = ["Total Unseen Count: ", networkLength - reshareCt - interestCt - uninterestCt - startNodesCount];
         var row11 = ["Number of Iterations: ", level];
-        var row12 = ["Most Significant Person: "]
+        var row12 = ["Most Significant Person: ", mostSignificantNode.label, mostSignificantNode.seenFriends];
 
         var data = [row1, row2, row3, row4, row5, row6, row7, row8, row9, row10, row11, row12];
         var csvContent = "data:text/csv;charset=utf-8,";
@@ -194,7 +195,6 @@
             simulating = true;
             mode = sharingMode;
             stepMode = document.getElementById("step").checked;
-            alert(stepMode);
             startNode = "";
             startNodes = [];
             startNodesCount = 0;
@@ -422,6 +422,9 @@
                   }
 
                   colorQueue(startNodes);
+
+                  updateMostSig();
+
                   document.getElementById("resharedCount").innerText = reshareCt;
                   document.getElementById("uninterestedCount").innerText = uninterestCt;
                   document.getElementById("interestedCount").innerText = interestCt;
@@ -431,6 +434,17 @@
                   document.getElementById("originalSharers").innerText = startNode + ' (' + startNodesCount + ')';
               }
           });
+
+          function updateMostSig() {
+              var max;
+              s.graph.nodes().forEach(function (n) {
+                  if (max == null || n.seenFriends > max.seenFriends) {
+                      max = n;
+                  }
+              });
+
+              mostSignificantNode = max;
+          }
 
           function reset(e) {
               size = 0;
