@@ -4,6 +4,17 @@
 <head>
     <meta charset="utf-8">
     <style>
+        #load
+        {
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            background-color: #white;
+            opacity: 0.9;
+            z-index: 499;
+        }
         #sigma-parent {
             width: 100%;
             height: 100%;
@@ -52,11 +63,75 @@
 <body>
 
 <div id="main-div">
+    <div id="menu-id" style="visibility: hidden">
+    <div class="toggle-btn-grp joint-toggle">
+        <label onclick="oneShare()" class="toggle"><input type="radio" name="shareMode" />1 Sharer</label>
+        <label onclick="multiShare()" class="toggle"><input type="radio" name="shareMode" />Multiple Sharer</label>
+    </div>
+    <form id="FBSim" action="form_action.asp">
+        <span title="How closely interests align across the network">
+            Diversity
+            <input type="text" name="diversityP" value="0" class="diversity">
+        </span>
+
+        <span title="Frequency of unique content being posted to network">
+            Unique Content
+            <input type="text" name="uniquenessP" value="0">
+        </span>
+
+        <span title="Probability that someone will reshare content they like">
+            Re-Share Probability
+            <input type="text" name="reshareP" value="1.0">
+        </span>
+
+        <input type="BUTTON" class="button" value="Run Simulation" onclick="runSimulation(this.form)">
+    </form>
+    <table>
+        <tr>
+            <td bgColor="#eee" width="50px">
+            </td>
+            <td>
+                Didn't see it.
+            </td>
+            <td id="unseenCount"></td>
+        </tr>
+        <tr>
+            <td width="50px" bgcolor="#75ff46"></td>
+            <td>
+                Uninterested.
+            </td>
+            <td id="uninterestedCount"></td>
+        </tr>
+        <tr>
+            <td width="50px" bgColor="#64c88">
+            </td>
+            <td>
+                Interested.
+            </td>
+            <td id="interestedCount"></td>
+        </tr>
+        <tr>
+            <td width="50px" bgcolor="#0025E0"></td>
+            <td>
+                Re-shared.
+            </td>
+            <td id="resharedCount"></td>
+        </tr>
+        <tr>
+            <td width="50px" bgcolor="#050F1A"></td>
+            <td>
+                Original sharers.
+            </td>
+            <td id="originalSharers"></td>
+        </tr>
+    </table>
+    </div>
+    <input type="BUTTON" class="button" id="stopAtlas" value="Stop graph positioning!" style="visibility: hidden"/>
     <div id="sigma-parent"></div>
 </div>
 
-<div style="text-align:center" id="load">
-  <img align="middle" src="http://jimpunk.net/Loading/wp-content/uploads/loading1.gif"/>
+<div id="load">
+  <img align="middle" src="https://wonkcomms.files.wordpress.com/2013/12/giphy.gif"/>
 </div>
 
 <script type="text/javascript">
@@ -84,7 +159,6 @@
             nodes[i].x = Math.random();
             nodes[i].y = Math.random();
             nodes[i].size = s.graph.degree(nodes[i].id);
-            nodes[i].color = nodes[i].center ? '#333' : '#666';
         }
 
         // Refresh the display:
@@ -92,6 +166,13 @@
 
         // ForceAtlas Layout
         s.startForceAtlas2();
+
+        $("#stopAtlas").show();
+        $("#stopAtlas").click(function() {
+          s.stopForceAtlas2();
+          $("#menu-id").show();
+          $("#stopAtlas").hide();
+        });
       },
       error: function (request, status, error) {
         alert("here");

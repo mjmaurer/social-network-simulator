@@ -108,7 +108,7 @@ def get_twit_graph():
 
     firstUsers = list(userSet)
     # Get friends and followers of up to 14 more users (due to rate limit)
-    for i in range(14):
+    for i in range(min(14, len(firstUsers))):
         curUser = firstUsers[i]
 
         try:
