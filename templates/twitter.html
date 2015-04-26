@@ -126,7 +126,6 @@
         </tr>
     </table>
     </div>
-    <input type="BUTTON" class="button" id="stopAtlas" value="Stop graph positioning!" style="visibility: hidden"/>
     <div id="sigma-parent"></div>
 </div>
 
@@ -167,12 +166,11 @@
         // ForceAtlas Layout
         s.startForceAtlas2();
 
-        $("#stopAtlas").show();
-        $("#stopAtlas").click(function() {
+        window.setTimeout(function() {
           s.stopForceAtlas2();
-          $("#menu-id").show();
-          $("#stopAtlas").hide();
-        });
+          document.getElementById("menu-id").style.visibility= 'visible';
+          // Do everything here
+        }, 4000);
       },
       error: function (request, status, error) {
         alert("here");
