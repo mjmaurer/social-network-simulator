@@ -324,24 +324,24 @@
                   queue.push(n);
               });
 
-          //Push null to the queue to keep track of the levels
-          queue.push(null);
+              //Push null to the queue to keep track of the levels
+              queue.push(null);
 
-          while (queue.length > 0) {
-              var q = queue.shift();
-              if (q == null) {
-                  if (queue.length > 0) {
-                      if (stepMode) {
-                          alert("State after " + level + " level");
-                      }
+              while (queue.length > 0) {
+                   var q = queue.shift();
+                   if (q == null) {
+                       if (queue.length > 0) {
+                           if (stepMode) {
+                               alert("State after " + level + " level");
+                           }
 
-                      level++;
-                      queue.push(null);
-                  }
-              } else {
-                  colorSim(q);
+                           level++;
+                           queue.push(null);
+                       }
+                   } else {
+                       colorSim(q);
+                   }
               }
-          }
           }
 
           function colorSim(node) {

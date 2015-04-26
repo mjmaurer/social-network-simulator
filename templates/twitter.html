@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -62,78 +62,241 @@
 </head>
 <body>
 
-<div id="main-div">
-    <div id="menu-id" style="visibility: hidden">
-    <div class="toggle-btn-grp joint-toggle">
-        <label onclick="oneShare()" class="toggle"><input type="radio" name="shareMode" />1 Sharer</label>
-        <label onclick="multiShare()" class="toggle"><input type="radio" name="shareMode" />Multiple Sharer</label>
+    <div id="main-div">
+        <div id="menu-id">
+            <div class="toggle-btn-grp joint-toggle">
+                <label onclick="oneShare()" class="toggle"><input type="radio" name="shareMode" />1 Sharer</label>
+                <label onclick="multiShare()" class="toggle"><input type="radio" name="shareMode" />Multiple Sharer</label>
+                <label class="step"><input type="checkbox" id="step" name="iterations" />Step-by-step Visualizations</label>
+                <label class="trials"><input type="number" id="trials" name="iterations" value="1" />Number Trials</label>
+            </div>
+            <form id="FBSim" action="form_action.asp">
+                <span title="How closely interests align across the network">
+                    Diversity
+                    <input type="text" name="diversityP" value="0" class="diversity">
+                </span>
+
+                <span title="Frequency of unique content being posted to network">
+                    Unique Content
+                    <input type="text" name="uniquenessP" value="0">
+                </span>
+
+                <span title="Probability that someone will reshare content they like">
+                    Re-Share Probability
+                    <input type="text" name="reshareP" value="1.0">
+                </span>
+
+                <input type="BUTTON" class="button" value="Run Simulation" onclick="runSimulation(this.form)">
+                <input type="BUTTON" class="button" value="Get Current Simulation Data" onclick="getCurrentData()">
+            </form>
+            <table>
+                <tr>
+                    <td bgcolor="#eee" width="50px"></td>
+                    <td>
+                        Didn't see it.
+                    </td>
+                    <td id="unseenCount"></td>
+                </tr>
+                <tr>
+                    <td width="50px" bgcolor="#75ff46"></td>
+                    <td>
+                        Uninterested.
+                    </td>
+                    <td id="uninterestedCount"></td>
+                </tr>
+                <tr>
+                    <td width="50px" bgcolor="#64c88"></td>
+                    <td>
+                        Interested.
+                    </td>
+                    <td id="interestedCount"></td>
+                </tr>
+                <tr>
+                    <td width="50px" bgcolor="#0025E0"></td>
+                    <td>
+                        Re-shared.
+                    </td>
+                    <td id="resharedCount"></td>
+                </tr>
+                <tr>
+                    <td width="50px" bgcolor="#050F1A"></td>
+                    <td>
+                        Original sharers.
+                    </td>
+                    <td id="originalSharers"></td>
+                </tr>
+            </table>
+        </div>
+        <div id="sigma-parent"></div>
     </div>
-    <form id="FBSim" action="form_action.asp">
-        <span title="How closely interests align across the network">
-            Diversity
-            <input type="text" name="diversityP" value="0" class="diversity">
-        </span>
-
-        <span title="Frequency of unique content being posted to network">
-            Unique Content
-            <input type="text" name="uniquenessP" value="0">
-        </span>
-
-        <span title="Probability that someone will reshare content they like">
-            Re-Share Probability
-            <input type="text" name="reshareP" value="1.0">
-        </span>
-
-        <input type="BUTTON" class="button" value="Run Simulation" onclick="runSimulation(this.form)">
-    </form>
-    <table>
-        <tr>
-            <td bgColor="#eee" width="50px">
-            </td>
-            <td>
-                Didn't see it.
-            </td>
-            <td id="unseenCount"></td>
-        </tr>
-        <tr>
-            <td width="50px" bgcolor="#75ff46"></td>
-            <td>
-                Uninterested.
-            </td>
-            <td id="uninterestedCount"></td>
-        </tr>
-        <tr>
-            <td width="50px" bgColor="#64c88">
-            </td>
-            <td>
-                Interested.
-            </td>
-            <td id="interestedCount"></td>
-        </tr>
-        <tr>
-            <td width="50px" bgcolor="#0025E0"></td>
-            <td>
-                Re-shared.
-            </td>
-            <td id="resharedCount"></td>
-        </tr>
-        <tr>
-            <td width="50px" bgcolor="#050F1A"></td>
-            <td>
-                Original sharers.
-            </td>
-            <td id="originalSharers"></td>
-        </tr>
-    </table>
-    </div>
-    <div id="sigma-parent"></div>
-</div>
 
 <div id="load">
   <img align="middle" src="https://wonkcomms.files.wordpress.com/2013/12/giphy.gif"/>
 </div>
 
 <script type="text/javascript">
+    //Color constants
+    var unseenColor = '#eee';
+    var seenUninterestedColor = '#75ff46';
+    var interestedNoPostColor = '#64c888';
+    var repostColor = '#0025E0';
+    var shareColor = '#050F1A';
+
+    //Input parameters
+    var diversity = "";
+    var uniqueness = "";
+    var reshare = "";
+    var startNode = "";
+    var sharingMode = false;
+
+    //In-Simulation Data
+    var startNodes = [];
+    var startNodesCount = 0;
+    var size = 1;
+    var networkLength = 0;
+    var simulating;
+    var mode;
+    var trials = 1;
+    var stepMode;
+
+    //Output Values
+    var reshareCt = 0;
+    var interestCt = 0;
+    var uninterestCt = 0;
+    var unseenCt = 0;
+    var levels = 0;
+    var mostSignificantNode;
+    var reshareData = [];
+    var interestData = [];
+    var uninterestData = [];
+    var unseenData = [];
+    var levelsData = [];
+    var significantNodesData = [];
+
+    function getCurrentData() {
+        var row1 = ["Network Size: ", networkLength]
+        var row2 = ["Start Node(s): "]
+        var k = 0;
+
+
+        while (k < startNodes.length) {
+            row2[k + 1] = startNodes[k].label;
+            k++;
+        }
+
+
+        var row3 = ["Diversity: ", diversity];
+        var row4 = ["Uniqueness: ", uniqueness];
+        var row5 = ["Reshare Rate: ", reshare];
+
+        var blank = [""];
+
+        var title = ["", "Current", "Average (with " + trials + " trials)"];
+
+        var avgReshare = 0.0;
+        var avgInterest = 0.0;
+        var avgUninterest = 0.0;
+        var avgUnseen = 0.0;
+        var avgLevels = 0.0;
+        var avgUnseenTotal = 0.0;
+        var row12 = ["Most Significant Person: ", mostSignificantNode.label, mostSignificantNode.seenFriends];
+        var row13 = ["Significant Person List: "];
+        var mid = [];
+        for (m = 0; m < trials; m++) {
+            avgReshare += reshareData[m];
+            avgInterest += interestData[m];
+            avgUninterest += uninterestData[m];
+            avgUnseen += unseenData[m];
+            avgLevels += levelsData[m];
+            avgUnseenTotal += networkLength - reshareData[m] - interestData[m] - uninterestData[m] - startNodesCount;
+            var temp = [significantNodesData[m].label, significantNodesData[m].seenFriends];
+            mid[m] = temp;
+        }
+
+        row13[1] = mid;
+
+        avgInterest /= trials;
+        avgLevels /= trials;
+        avgReshare /= trials;
+        avgUninterest /= trials;
+        avgUnseen /= trials;
+        avgUnseenTotal /= trials;
+
+        var row6 = ["Reshare Count: ", reshareCt, avgReshare];
+        var row7 = ["Interest Count: ", interestCt, avgInterest];
+        var row8 = ["Uninterest Count: ", uninterestCt, avgUninterest];
+        var row9 = ["Unseen Count in Visited Nodes: ", unseenCt, avgUnseen];
+        var row10 = ["Total Unseen Count: ", networkLength - reshareCt - interestCt - uninterestCt - startNodesCount, avgUnseenTotal];
+        var row11 = ["Number of Iterations: ", level, avgLevels];
+
+
+        var data = [row1, row2, row3, row4, row5, blank, title, row6, row7, row8, row9, row10, row11, blank, row12, row13];
+        var csvContent = "data:text/csv;charset=utf-8,";
+        data.forEach(function (infoArray, index) {
+            dataString = infoArray.join(",");
+            csvContent += index < data.length ? dataString + "\n" : dataString;
+        });
+
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "simulationData.csv");
+
+        link.click(); // This will download the data file named "simulationData.csv".
+    }
+
+    function isValidInput(n) {
+        return parseFloat(n) >= 0 && parseFloat(n) <= 1 && n != "";
+    }
+
+    function runSimulation(frm) {
+        alert("Click a vertex to repeatedly run the simulation");
+        reshareData = [];
+        interestData = [];
+        uninterestData = [];
+        unseenData = [];
+        levelsData = [];
+        significantNodesData = [];
+
+        diversity = frm.diversityP.value;
+        uniqueness = frm.uniquenessP.value;
+        reshare = frm.reshareP.value;
+        trials = document.getElementById("trials").value;
+        if (isValidInput(diversity) && isValidInput(uniqueness) && isValidInput(reshare)) {
+            simulating = true;
+            mode = sharingMode;
+            stepMode = document.getElementById("step").checked;
+            startNode = "";
+            startNodes = [];
+            startNodesCount = 0;
+        } else {
+            alert("Oops- make sure all fields are filled out! Accepted values are between 0.0 and 1.0.");
+        }
+    }
+
+    function oneShare() {
+        sharingMode = false;
+    }
+
+    function multiShare() {
+        sharingMode = true;
+    }
+
+    //Queue of nodes to be visited
+    var queue = [];
+
+    // Add a method to the graph model that returns an
+    // object with every neighbors of a node inside:
+    sigma.classes.graph.addMethod('neighbors', function (nodeId) {
+        var k,
+        neighbors = {},
+        index = this.allNeighborsIndex[nodeId] || {};
+
+        for (k in index)
+            neighbors[k] = this.nodesIndex[k];
+        return neighbors;
+    });
+
   $(document).ready(function() {
     $.ajax({
       url: "{{ url_for('get_twit_graph') }}",
