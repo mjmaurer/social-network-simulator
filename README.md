@@ -1,6 +1,8 @@
 Instructions for Accessing Web App:
 Code is hosted at http://social-simulator.appspot.com/
 
+See docs/InputOutputSummary.pdf for further explanation of inputs and outputs used in the model.
+
 Twitter:
 Click "Twitter" from the main page and log-in to Twitter to authorize the account. For optimization purposes the entire network is not loaded. Around 10 connections from the authorized account will be used, with around 10-15 connections from each of those accounts.
 
